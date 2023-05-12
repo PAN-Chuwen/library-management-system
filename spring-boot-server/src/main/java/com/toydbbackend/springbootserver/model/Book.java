@@ -32,12 +32,12 @@ public class Book {
         return author;
     }
 
-    public String getPublisher() {
-        return publisher;
-    }
-
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public String getPublisher() {
+        return publisher;
     }
 
     public void setPublisher(String publisher) {

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,17 +27,17 @@ public class BookController {
     }
 
     @PostMapping(path = "/add") // Map ONLY POST Requests
-    public @ResponseBody String addNewBook(@RequestParam String book_no, @RequestParam String title,
-            @RequestParam String author, @RequestParam String publisher) {
+    public @ResponseBody String addNewBook(@RequestBody Book bookRequest) {
         // @ResponseBody means the returned String is the response, not a view name
         // @RequestParam means it is a parameter from the GET or POST request
 
-        Book n = new Book();
-        n.setBook_no(book_no);
-        n.setTitle(title);
-        n.setAuthor(author);
-        n.setPublisher(publisher);
-        bookRepository.save(n);
+        
+        Book b = new Book();
+        b.setBook_no(bookRequest.getBook_no());
+        b.setTitle(bookRequest.getTitle());
+        b.setAuthor(bookRequest.getAuthor());
+        b.setPublisher(bookRequest.getPublisher());
+        bookRepository.save(b);
         return "Saved";
     }
 
