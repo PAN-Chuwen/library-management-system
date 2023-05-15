@@ -1,23 +1,25 @@
 package com.toydbbackend.springbootserver.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
 @Entity // This tells Hibernate to make a table out of this class
 public class Book {
     @Id
-    private String book_no;
+    @Column(name = "book_no")
+    private String bookID;
 
     private String title;
     private String author;
     private String publisher;
 
-    public String getBook_no() {
-        return book_no;
+    public String getBookID() {
+        return bookID;
     }
 
-    public void setBook_no(String book_no) {
-        this.book_no = book_no;
+    public void setBookID(String bookID) {
+        this.bookID = bookID;
     }
 
     public String getTitle() {
