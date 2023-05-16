@@ -8,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,10 +66,27 @@ public class BookController {
     @PutMapping(path = "/update/{bookID}")
     public ResponseEntity<?> updateBook(@PathVariable("bookID") String bookID, @RequestBody Book newBook) {
         try {
-            Optional<Book> existingBook = bookRepository.findById(newBook.getBookID());
+            Optional<Book> existingBook = bookRepository.findById(bookID);
             if (existingBook.isPresent()) {
-                Book savedBook = bookRepository.save(newBook);
-                return ResponseEntity.ok(savedBook);
+                if (newBook.getBookID() != null && !newBook.getBookID().equals(bookID)) {
+                    // The bookID in the request body is different from the bookID in the path
+                    Optional<Book> newBookIDExists = bookRepository.findById(newBook.getBookID());
+                    if (newBookIDExists.isPresent()) {
+                        // A book with the new bookID already exists
+                        return ResponseEntity.badRequest().body("Error: A book with the new bookID already exists");
+                    } else {
+                        // No book with the new bookID exists, so we can update the bookID
+                        bookRepository.deleteById(bookID);
+                        Book savedBook = bookRepository.save(newBook);
+                        return ResponseEntity.ok(savedBook);
+                    }
+                } else {
+                    // The bookID in the request body is the same as the bookID in the path
+                    newBook.setBookID(bookID);
+                    Book savedBook = bookRepository.save(newBook);
+                    return ResponseEntity.ok(savedBook);
+                }
+
             } else {
                 return ResponseEntity.notFound().build();
             }
