@@ -9,7 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,7 +21,6 @@ import com.toydbbackend.springbootserver.repository.BookRepository;
 
 import java.util.List;
 import java.util.Optional;
-
 
 @Controller // This means that this class is a Controller
 @RequestMapping(path = "/book") // This means URL's start with /book (after Application path)
@@ -45,7 +46,6 @@ public class BookController {
         }
     }
 
-
     @PostMapping(path = "/add") // Map ONLY POST Requests
     public ResponseEntity<?> addNewBook(@RequestBody Book newBook) {
         try {
@@ -57,6 +57,21 @@ public class BookController {
             return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.badRequest().body("Error: Duplicate book entry");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping(path = "/update/{bookID}")
+    public ResponseEntity<?> updateBook(@PathVariable("bookID") String bookID, @RequestBody Book newBook) {
+        try {
+            Optional<Book> existingBook = bookRepository.findById(newBook.getBookID());
+            if (existingBook.isPresent()) {
+                Book savedBook = bookRepository.save(newBook);
+                return ResponseEntity.ok(savedBook);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
