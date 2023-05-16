@@ -95,4 +95,19 @@ public class BookController {
         }
     }
 
+    @DeleteMapping(path = "/delete/{bookID}")
+    public ResponseEntity<?> deleteBook(@PathVariable("bookID") String bookID) {
+        try {
+            Optional<Book> existingBook = bookRepository.findById(bookID);
+            if (existingBook.isPresent()) {
+                bookRepository.deleteById(bookID);
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }
