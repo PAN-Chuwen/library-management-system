@@ -20,7 +20,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.toydbbackend.springbootserver.model.Book;
 import com.toydbbackend.springbootserver.repository.BookRepository;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller // This means that this class is a Controller
@@ -48,19 +51,29 @@ public class BookController {
     }
 
     @PostMapping(path = "/add") // Map ONLY POST Requests
-    public ResponseEntity<?> addNewBook(@RequestBody Book newBook) {
-        try {
-            Optional<Book> existingBook = bookRepository.findById(newBook.getBookID());
-            if (existingBook.isPresent()) {
-                return ResponseEntity.badRequest().body("Error: Duplicate book entry");
+    public ResponseEntity<?> addNewBook(@RequestBody List<Book> newBooks) {
+        List<Book> savedBooks = new ArrayList<>();
+        Map<String, String> errors = new HashMap<>();
+
+        for (Book newBook : newBooks) {
+            try {
+                Optional<Book> existingBook = bookRepository.findById(newBook.getBookID());
+                if (existingBook.isPresent()) {
+                    errors.put(newBook.getBookID(), "Error: bookID already exists");
+                } else {
+                    Book savedBook = bookRepository.save(newBook);
+                    savedBooks.add(savedBook);
+                }
+            } catch (DataIntegrityViolationException e) {
+                errors.put(newBook.getBookID(), "Error: bookID already exists");
+            } catch (Exception e) {
+                errors.put(newBook.getBookID(), "Error: an unknown error occurred");
             }
-            Book savedBook = bookRepository.save(newBook); // contructor in Book.java is used here
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
-        } catch (DataIntegrityViolationException e) {
-            return ResponseEntity.badRequest().body("Error: Duplicate book entry");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+        Map<String, Object> response = new HashMap<>();
+        response.put("savedBooks", savedBooks);
+        response.put("errors", errors);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping(path = "/update/{bookID}")
