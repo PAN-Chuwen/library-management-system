@@ -55,7 +55,7 @@ public class BorrowService {
     }
 
 
-    // return all borrow records for specific cardID, including basic book info and
+    // Fetch all borrow records for specific cardID, including basic book info and
     // borrow/return date
     @GetMapping(path = "/records/{cardID}")
     public ResponseEntity<?> getBorrowRecords(@PathVariable("cardID") String cardID) {
@@ -105,4 +105,26 @@ public class BorrowService {
             return ResponseEntity.ok(savedBorrowRecord);
         }
     }
+
+    // return book(with certain bookID e.g. 'B001') for certain cardID
+    @PostMapping(path = "/user/{cardID}/{bookID}/return")
+    public ResponseEntity<?> returnBook(@PathVariable("cardID") String cardID, @PathVariable("bookID") String bookID) {
+        Optional<Book> bookToBorrow = bookRepository.findById(bookID);
+        if (bookToBorrow.isPresent() == false) {
+            return ResponseEntity.badRequest().body("The bookID is not found");
+        } else {
+            List<Borrow> borrowRecords = borrowRepository.findByCardCardIDAndBookBookIDAndNotReturned(cardID, bookID);
+            if (borrowRecords.isEmpty()) {
+                return ResponseEntity.badRequest().body("The book is not borrowed by this cardID");
+            } else {
+                Borrow borrowRecord = borrowRecords.get(0);
+                borrowRecord.setReturnDate(LocalDate.now());
+                borrowRepository.save(borrowRecord);
+                return ResponseEntity.ok(borrowRecord);
+            }
+        }
+    }
+
+    // delete or add cardID, note that if a cardID has books borrowed, then it cannot be deleted
+
 }

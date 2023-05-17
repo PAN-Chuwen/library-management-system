@@ -19,4 +19,7 @@ public interface BorrowRepository extends JpaRepository<Borrow, Integer> {
 
     @Query("SELECT returnDate FROM Borrow b WHERE b.card.cardID = :cardID AND b.returnDate is NOT NULL ORDER BY b.returnDate DESC LIMIT 5")
     List<Borrow> findByCardCardIdReturnRecords(String cardID);
+
+    @Query("SELECT b FROM Borrow b WHERE b.card.cardID = :cardID AND b.book.bookID = :bookID AND b.returnDate is NULL")
+    List<Borrow> findByCardCardIDAndBookBookIDAndNotReturned(@Param("cardID") String cardID, @Param("bookID") String bookID);
 }
