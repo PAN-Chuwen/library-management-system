@@ -1,6 +1,8 @@
 package com.toydbbackend.springbootserver.controller;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.toydbbackend.springbootserver.model.Book;
 import com.toydbbackend.springbootserver.model.Borrow;
@@ -33,6 +36,24 @@ public class BorrowService {
     private BookRepository bookRepository;
 
     private static final Logger log = LoggerFactory.getLogger(BookController.class);
+
+
+    // fetching all borrow records or for specific book
+    @GetMapping(path = "/get/records")
+    public ResponseEntity<?> getBorrowRecordsForBook(@RequestParam(required = false) String bookID) {
+        if (bookID != null && !bookID.isEmpty()) {
+            List<Borrow> filteredBorrowRecords = borrowRepository.findByBookBookID(bookID);
+            if (filteredBorrowRecords.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            } else {
+                return ResponseEntity.ok(filteredBorrowRecords);
+            }
+        } else {
+            Iterable<Borrow> allBorrowRecords = borrowRepository.findAll();
+            return ResponseEntity.ok(allBorrowRecords);
+        }
+    }
+
 
     // return all borrow records for specific cardID, including basic book info and
     // borrow/return date
@@ -66,7 +87,13 @@ public class BorrowService {
         } else if (bookToBorrow.isPresent() == false) {
             return ResponseEntity.badRequest().body("The bookID is not found");
         } else if (bookToBorrow.get().getStock() == 0) {
-            return ResponseEntity.badRequest().body("The book is not available, 0 at stock");
+            List<Borrow> returnRecords = borrowRepository.findByCardCardIdReturnRecords(cardID);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "The book is not available, 0 at stock, here are the most recent return records");
+            response.put("returnRecords", returnRecords);
+            
+            return ResponseEntity.badRequest().body(response);
         } else {
             Borrow savedBorrowRecord = new Borrow();
             savedBorrowRecord.setCard(cardRepository.findById(cardID).get());

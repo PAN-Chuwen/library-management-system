@@ -11,7 +11,12 @@ import com.toydbbackend.springbootserver.model.Borrow;
 // The Long type parameter is the type of the entity ID.
 public interface BorrowRepository extends JpaRepository<Borrow, Integer> {
     List<Borrow> findByCardCardID(String cardID);
+    List<Borrow> findByBookBookID(String bookID);
 
     @Query("SELECT COUNT(b) FROM Borrow b WHERE b.card.cardID = :cardID AND b.returnDate is NULL")
     int countByCardCardIDAndNotReturned(@Param("cardID") String cardID);
+
+
+    @Query("SELECT returnDate FROM Borrow b WHERE b.card.cardID = :cardID AND b.returnDate is NOT NULL ORDER BY b.returnDate DESC LIMIT 5")
+    List<Borrow> findByCardCardIdReturnRecords(String cardID);
 }
