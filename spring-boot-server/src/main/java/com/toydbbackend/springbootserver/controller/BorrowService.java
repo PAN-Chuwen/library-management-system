@@ -2,6 +2,7 @@ package com.toydbbackend.springbootserver.controller;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.toydbbackend.springbootserver.model.Book;
 import com.toydbbackend.springbootserver.model.Borrow;
 import com.toydbbackend.springbootserver.repository.BookRepository;
 import com.toydbbackend.springbootserver.repository.BorrowRepository;
@@ -57,11 +59,14 @@ public class BorrowService {
         // of 5 books, but this approach is too slow
         // instead create custom query methods in Repository code
 
+        Optional<Book> bookToBorrow = bookRepository.findById(bookID);
         if (borrowRepository.countByCardCardIDAndNotReturned(cardID) >= 5) {
             log.info("borrow limits: 5 books max");
             return ResponseEntity.badRequest().body("You have reached the limit of 5 books");
-        } else if (!bookRepository.findById(bookID).isPresent()) {
-            return ResponseEntity.badRequest().body("The book is not available");
+        } else if (bookToBorrow.isPresent() == false) {
+            return ResponseEntity.badRequest().body("The bookID is not found");
+        } else if (bookToBorrow.get().getStock() == 0) {
+            return ResponseEntity.badRequest().body("The book is not available, 0 at stock");
         } else {
             Borrow savedBorrowRecord = new Borrow();
             savedBorrowRecord.setCard(cardRepository.findById(cardID).get());

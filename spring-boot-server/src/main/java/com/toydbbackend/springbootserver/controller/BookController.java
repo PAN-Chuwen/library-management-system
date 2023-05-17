@@ -61,6 +61,10 @@ public class BookController {
                 if (existingBook.isPresent()) {
                     errors.put(newBook.getBookID(), "Error: bookID already exists");
                 } else {
+                    // set the total books to 1 if it is not set
+                    if (newBook.getTotal() == null) {
+                        newBook.setTotal(1);
+                    }
                     Book savedBook = bookRepository.save(newBook);
                     savedBooks.add(savedBook);
                 }
