@@ -15,6 +15,8 @@ public class Book {
     private String title;
     private String author;
     private String publisher;
+    private Integer total;
+    private Integer stock;
 
     public Book() {
     }
@@ -24,6 +26,8 @@ public class Book {
         this.title = b.title;
         this.author = b.author;
         this.publisher = b.publisher;
+        this.total = b.total;
+        this.stock = b.stock;
     }
 
     public String getBookID() {
@@ -56,5 +60,21 @@ public class Book {
 
     public void setPublisher(String publisher) {
         this.publisher = publisher;
+    }
+
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public Integer setStock(Integer stock) {
+        return this.stock = stock;
     }
 }
