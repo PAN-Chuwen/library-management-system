@@ -110,47 +110,18 @@ public class BookController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // TODO: specify update behavior and write test code
     // Put method is only used to update book information, and should NOT be used to
     // update total/stock
-    @PutMapping(path = "/update/{bookID}")
-    public ResponseEntity<?> updateBook(@PathVariable("bookID") String bookID, @RequestBody Book newBook) {
-        try {
-            Optional<Book> existingBook = bookRepository.findById(bookID);
-            if (existingBook.isPresent()) {
-                if (newBook.getBookID() != null && !newBook.getBookID().equals(bookID)) {
-                    // The bookID in the request body is different from the bookID in the path
-                    Optional<Book> newBookIDExists = bookRepository.findById(newBook.getBookID());
-                    if (newBookIDExists.isPresent()) {
-                        // A book with the new bookID already exists
-                        return ResponseEntity.badRequest().body("Error: A book with the new bookID already exists");
-                    } else {
-                        // No book with the new bookID exists, so we can update the bookID
-                        bookRepository.deleteById(bookID);
-                        Book savedBook = bookService.addNewBook(newBook);
-                        return ResponseEntity.ok(savedBook);
-                    }
-                } else {
-                    // The bookID in the request body is the same as the bookID in the path
-                    newBook.setBookID(bookID);
-                    Book savedBook = bookService.addNewBook(newBook);
-                    return ResponseEntity.ok(savedBook);
-                }
-
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 
     @DeleteMapping(path = "/delete/{bookID}")
     public ResponseEntity<?> deleteBook(@PathVariable("bookID") String bookID) {
         try {
             Optional<Book> existingBook = bookRepository.findById(bookID);
             if (existingBook.isPresent()) {
+                Book deletedBook = existingBook.get();
                 bookRepository.deleteById(bookID);
-                return ResponseEntity.ok().build();
+                return ResponseEntity.ok().body(deletedBook);
             } else {
                 return ResponseEntity.notFound().build();
             }
