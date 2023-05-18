@@ -30,6 +30,25 @@ public class Book {
         this.stock = b.stock;
     }
 
+    /*
+     * 1. this.NULL + other.NULL: true 2. this.NULL + other.NOT NULL: true 3. this.NOT
+     * NULL + other.NOT NULL: false 4. both not null, compare content
+     */
+    public boolean partialMatch(Book other) {
+        if (other == null)
+            return false;
+        if (this.bookID != null && !this.bookID.equals(other.bookID))
+            return false;
+        if (this.title != null && other.title != null && !this.title.equals(other.title))
+            return false;
+        if (this.author != null && other.author != null && !this.author.equals(other.author))
+            return false;
+        if (this.publisher != null && other.publisher != null && !this.publisher.equals(other.publisher))
+            return false;
+        // Add more fields as needed
+        return true;
+    }
+
     public String getBookID() {
         return bookID;
     }
