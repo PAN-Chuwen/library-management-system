@@ -27,7 +27,7 @@ import com.toydbbackend.springbootserver.repository.CardRepository;
 @Controller
 @RequestMapping(path = "/borrow")
 
-public class BorrowService {
+public class BorrowController {
     @Autowired
     private BorrowRepository borrowRepository;
     @Autowired
